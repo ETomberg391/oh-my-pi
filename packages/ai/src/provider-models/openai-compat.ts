@@ -1580,7 +1580,18 @@ export function vllmModelManagerOptions(config?: VllmModelManagerConfig): ModelM
 				baseUrl,
 				apiKey,
 				mapModel: (entry, defaults) => {
-					const model = mapWithBundledReference(entry, defaults, references.get(defaults.id));
+					const reference = references.get(defaults.id);
+					const model = mapWithBundledReference(entry, defaults, reference);
+					// vLLM does not advertise reasoning capabilities in its /models endpoint,
+					// but Qwen models served through vLLM support thinking. Heuristic-detect
+					// them so users do not have to manually mark every Qwen model.
+					if (model.id.toLowerCase().includes("qwen") && !model.reasoning) {
+						return {
+							...model,
+							reasoning: true,
+							contextWindow: toPositiveNumber(entry.max_model_len, model.contextWindow),
+						};
+					}
 					return {
 						...model,
 						contextWindow: toPositiveNumber(entry.max_model_len, model.contextWindow),

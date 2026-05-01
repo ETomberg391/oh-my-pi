@@ -753,6 +753,34 @@ describe("kimi model detection via detectCompat", () => {
 	});
 });
 
+describe("vLLM Qwen thinking format detection", () => {
+	it("uses qwen-chat-template for Qwen models on vLLM provider", () => {
+		const model: Model<"openai-completions"> = {
+			...getBundledModel("openai", "gpt-4o-mini"),
+			api: "openai-completions",
+			provider: "vllm",
+			baseUrl: "http://192.168.1.7:8000/v1",
+			id: "qwen3.6-27b-autoround",
+			reasoning: true,
+		};
+		const compat = detectCompat(model);
+		expect(compat.thinkingFormat).toBe("qwen-chat-template");
+	});
+
+	it("uses qwen for Qwen models on non-vLLM providers", () => {
+		const model: Model<"openai-completions"> = {
+			...getBundledModel("openai", "gpt-4o-mini"),
+			api: "openai-completions",
+			provider: "openrouter",
+			baseUrl: "https://openrouter.ai/api/v1",
+			id: "qwen/qwen3-32b",
+			reasoning: true,
+		};
+		const compat = detectCompat(model);
+		expect(compat.thinkingFormat).toBe("qwen");
+	});
+});
+
 describe("NVIDIA NIM DeepSeek special-token stripping", () => {
 	function nvidiaDeepseekModel(): Model<"openai-completions"> {
 		return {

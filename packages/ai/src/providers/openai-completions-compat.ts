@@ -67,6 +67,7 @@ export function detectOpenAICompat(model: Model<"openai-completions">, resolvedB
 		/(^|\/)anthropic\//i.test(model.id);
 	const isAlibaba = provider === "alibaba-coding-plan" || baseUrl.includes("dashscope");
 	const isQwen = model.id.toLowerCase().includes("qwen");
+	const isVllm = provider === "vllm";
 	// DeepSeek V4 (and other reasoning-capable DeepSeek models) reject follow-up requests in
 	// thinking mode unless prior assistant tool-call turns include `reasoning_content`. The
 	// upstream model is reachable through many OpenAI-compat hosts (api.deepseek.com, Deepinfra,
@@ -214,7 +215,7 @@ export function detectOpenAICompat(model: Model<"openai-completions">, resolvedB
 				: provider === "openrouter" || baseUrl.includes("openrouter.ai")
 					? "openrouter"
 					: isAlibaba || isQwen
-						? "qwen"
+						? isVllm ? "qwen-chat-template" : "qwen"
 						: "openai",
 		reasoningContentField: "reasoning_content",
 		// Backends that 400 follow-up requests when prior assistant tool-call turns lack `reasoning_content`:
