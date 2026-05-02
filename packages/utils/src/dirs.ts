@@ -76,7 +76,9 @@ export function relativePathWithinRoot(root: string, candidate: string): string 
 	return relative || null;
 }
 
-let projectDir = standardizeMacOSPath(process.cwd());
+let projectDir = standardizeMacOSPath(
+	process.env.PI_PROJECT_DIR ? path.resolve(process.env.PI_PROJECT_DIR) : process.cwd(),
+);
 
 /** Get the project directory. */
 export function getProjectDir(): string {
